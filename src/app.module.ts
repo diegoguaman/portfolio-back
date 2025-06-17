@@ -7,6 +7,7 @@ import { PrismaModule } from 'prisma/prisma.module';
 import { FormModule } from './modules/form/form.module';
 import Joi from 'joi';
 import { NotificationModule } from './modules/notification/notification.module';
+import { CookieModule } from './modules/cookie/cookie.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { NotificationModule } from './modules/notification/notification.module';
     NotificationModule,
     PrismaModule,
     FormModule,
+    CookieModule,
   ],
   controllers: [AppController],
   providers: [AppService],
