@@ -5,7 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import configuration from './config/configuration';
 import { PrismaModule } from 'prisma/prisma.module';
 import { FormModule } from './modules/form/form.module';
-import Joi from 'joi';
+import * as Joi from 'joi';
 import { NotificationModule } from './modules/notification/notification.module';
 import { CookieModule } from './modules/cookie/cookie.module';
 
