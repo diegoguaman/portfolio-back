@@ -4,6 +4,7 @@ import { SubmitFormUseCase } from './submit-form.usecase';
 import { FormRepository } from '../domain/form.repository';
 import { SubmitFormDto } from '../presentation/dtos/submit-form.dto';
 import { FormSubmissionEntity } from '../domain/form.entity';
+import { FORM_REPOSITORY_TOKEN } from '../domain/constants';
 
 describe('SubmitFormUseCase', () => {
   let useCase: SubmitFormUseCase;
@@ -24,7 +25,7 @@ describe('SubmitFormUseCase', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         SubmitFormUseCase,
-        { provide: 'FormRepository', useValue: repo },
+        { provide: FORM_REPOSITORY_TOKEN, useValue: repo },
       ],
     }).compile();
     useCase = module.get<SubmitFormUseCase>(SubmitFormUseCase);

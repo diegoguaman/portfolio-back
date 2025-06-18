@@ -5,6 +5,7 @@ import { COOKIE_REPOSITORY_TOKEN } from '../domain/constants';
 import { CookieRepository } from '../domain/cookie.repository';
 import { CookieConsentDto } from '../presentation/dtos/cookie-consent.dto';
 import { CookieConsentEntity } from '../domain/cookie-consent.entity';
+import { ConflictException } from '@nestjs/common';
 
 describe('SubmitCookieConsentUseCase', () => {
   let useCase: SubmitCookieConsentUseCase;
@@ -23,7 +24,7 @@ describe('SubmitCookieConsentUseCase', () => {
     );
   });
 
-  it('should reuse existing consent', async () => {
+  it('should throw ConflictException when consent already exists', async () => {
     const dto: CookieConsentDto = {
       cookieName: 'analytics',
       consentGiven: true,
@@ -36,9 +37,8 @@ describe('SubmitCookieConsentUseCase', () => {
     };
     repo.findByCookieName.mockResolvedValueOnce(existing);
 
-    const result = await useCase.execute(dto);
+    await expect(useCase.execute(dto)).rejects.toThrow(ConflictException);
     expect(repo.findByCookieName).toHaveBeenCalledWith(dto.cookieName);
-    expect(result).toBe(existing);
   });
 
   it('should create new consent if none exists', async () => {

@@ -1,1 +1,1 @@
-export const FORM_REPOSITORY = Symbol('FormRepository');
+export const FORM_REPOSITORY_TOKEN = Symbol('FormRepository');
