@@ -1,10 +1,12 @@
 /* eslint-disable @typescript-eslint/unbound-method */
 import { Test, TestingModule } from '@nestjs/testing';
 import { SubmitFormUseCase } from './submit-form.usecase';
-import { FormRepository } from '../domain/form.repository';
+import {
+  FormRepository,
+  FORM_REPOSITORY_TOKEN,
+} from '../domain/form.repository';
 import { SubmitFormDto } from '../presentation/dtos/submit-form.dto';
 import { FormSubmissionEntity } from '../domain/form.entity';
-import { FORM_REPOSITORY_TOKEN } from '../domain/constants';
 
 describe('SubmitFormUseCase', () => {
   let useCase: SubmitFormUseCase;
