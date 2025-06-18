@@ -12,7 +12,7 @@ export class EmailAdapter implements NotificationServicePort {
     // Inicializa la API key de SendGrid
     const apiKey = this.config.get<string>('SENDGRID_API_KEY');
     if (!apiKey) {
-      // Fallamos rápido si no está configurada
+      // Lanzamos un Error si no está configurada
       throw new Error('Missing SENDGRID_API_KEY in environment');
     }
     SendGrid.setApiKey(apiKey);

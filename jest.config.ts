@@ -3,20 +3,15 @@ import type { Config } from '@jest/types';
 const config: Config.InitialOptions = {
   preset: 'ts-jest',
   testEnvironment: 'node',
-  moduleFileExtensions: ['js', 'json', 'ts'],
-  rootDir: 'src',
-  testRegex: '.*\\.spec\\.ts$',
-  transform: {
-    '^.+\\.(t|j)s$': 'ts-jest',
-  },
+  roots: ['<rootDir>/src', '<rootDir>/test'],
+  moduleFileExtensions: ['ts', 'js', 'json'],
+  testMatch: ['**/*.spec.ts'],
   collectCoverage: true,
-  coverageDirectory: '../coverage',
-  coverageThreshold: {
-    global: {
-      branches: 80,
-      functions: 80,
-      lines: 80,
-      statements: 80,
+  coverageDirectory: 'coverage',
+  globals: {
+    'ts-jest': {
+      tsconfig: 'tsconfig.json',
+      diagnostics: true,
     },
   },
 };

@@ -15,10 +15,6 @@ import { CookieModule } from './modules/cookie/cookie.module';
       load: [configuration],
       isGlobal: true,
       validationSchema: Joi.object({
-        SMTP_HOST: Joi.string().required(),
-        SMTP_PORT: Joi.number().required(),
-        SMTP_USER: Joi.string().required(),
-        SMTP_PASS: Joi.string().required(),
         TWILIO_ACCOUNT_SID: Joi.string().required(),
         TWILIO_AUTH_TOKEN: Joi.string().required(),
         TWILIO_WHATSAPP_FROM: Joi.string().required(),
