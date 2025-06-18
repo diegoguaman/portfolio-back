@@ -12,6 +12,15 @@ export class NotificationController {
   @HttpCode(HttpStatus.ACCEPTED)
   @ApiOperation({ summary: 'Enviar notificación por email/WhatsApp' })
   @ApiResponse({ status: 202, description: 'Notificación encolada para envío' })
+  @ApiResponse({
+    status: 400,
+    description:
+      'Solicitud inválida: falta email y/o teléfono, o DTO mal formado',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Error interno al procesar la notificación',
+  })
   async notify(@Body() dto: NotificationDto) {
     await this.sendNotification.execute(dto);
     return { status: 'queued' };
