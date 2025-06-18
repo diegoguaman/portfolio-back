@@ -1,4 +1,8 @@
-import { Inject, Injectable } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import {
   FormRepository,
   FORM_REPOSITORY_TOKEN,
@@ -15,6 +19,11 @@ export class SubmitFormUseCase {
   async execute(dto: SubmitFormDto): Promise<FormSubmissionEntity> {
     const record = await this.formRepo.create(dto);
     // aquí podrías disparar notificaciones
-    return record;
+    if (record) {
+      return record;
+    }
+    throw new InternalServerErrorException(
+      'Error al procesar el envío del formulario',
+    );
   }
 }

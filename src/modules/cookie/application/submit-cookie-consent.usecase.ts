@@ -1,4 +1,9 @@
-import { Injectable, Inject } from '@nestjs/common';
+import {
+  Injectable,
+  Inject,
+  ConflictException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { CookieRepository } from '../domain/cookie.repository';
 import { CookieConsentDto } from '../presentation/dtos/cookie-consent.dto';
 import { CookieConsentEntity } from '../domain/cookie-consent.entity';
@@ -12,11 +17,18 @@ export class SubmitCookieConsentUseCase {
   ) {}
 
   async execute(dto: CookieConsentDto): Promise<CookieConsentEntity> {
-    const existing = await this.cookieRepo.findByCookieName(dto.cookieName);
-    if (existing) {
-      return existing; // ya existe consentimiento previo :contentReference[oaicite:9]{index=9}
+    try {
+      const existing = await this.cookieRepo.findByCookieName(dto.cookieName);
+      if (existing) {
+        throw new ConflictException(
+          `Consent for "${dto.cookieName}" already exists`,
+        );
+      }
+      return await this.cookieRepo.createConsent(dto);
+    } catch (error) {
+      if (error instanceof ConflictException) throw error;
+      // Para cualquier otro error, devolvemos un 500
+      throw new InternalServerErrorException('Failed to submit cookie consent');
     }
-    const record = await this.cookieRepo.createConsent(dto);
-    return record;
   }
 }

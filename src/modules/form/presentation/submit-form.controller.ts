@@ -16,6 +16,12 @@ export class SubmitFormController {
     status: 201,
     description: 'Formulario procesado correctamente',
   })
+  @ApiResponse({
+    status: 400,
+    description:
+      'Solicitud inválida (p. ej. regla de negocio no cumplida o DTO mal formado)',
+  })
+  @ApiResponse({ status: 500, description: 'Error interno del servidor' })
   async execute(@Body() dto: SubmitFormDto) {
     const record = await this.submitForm.execute(dto);
     return new ResponseDto({

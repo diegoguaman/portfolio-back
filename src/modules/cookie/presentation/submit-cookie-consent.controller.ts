@@ -12,6 +12,14 @@ export class SubmitCookieConsentController {
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Guardar preferencia de cookies del usuario' })
   @ApiResponse({ status: 201, description: 'Consentimiento registrado' })
+  @ApiResponse({
+    status: 409,
+    description: 'Ya existe consentimiento para esta cookie',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Error interno al procesar el consentimiento',
+  })
   async submit(@Body() dto: CookieConsentDto) {
     const result = await this.useCase.execute(dto);
     return {
