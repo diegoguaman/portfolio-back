@@ -1,10 +1,10 @@
-import { JsonValue } from 'generated/prisma/runtime/library';
+import { Prisma } from '@prisma/client';
 
 export interface FormSubmissionEntity {
   id: number;
   name: string;
   email: string;
   message: string;
-  cookies: JsonValue;
+  cookies: Prisma.JsonValue;
   createdAt: Date;
 }
