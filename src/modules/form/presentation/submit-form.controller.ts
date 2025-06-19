@@ -1,7 +1,7 @@
 import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
 import { SubmitFormUseCase } from '../application/submit-form.usecase';
 import { SubmitFormDto } from './dtos';
-import { ResponseDto } from 'src/common/dtos/response.dto';
+import { ResponseDto } from './../../../common/dtos/response.dto';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Form')
