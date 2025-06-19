@@ -121,7 +121,7 @@ jobs:
       - name: Build application
         run: npm run build
       - name: Verify build output
-        run: test -f dist/main.js
+        run: test -f dist/src/main.js
 
   coverage-report:
     name: Coverage Report
