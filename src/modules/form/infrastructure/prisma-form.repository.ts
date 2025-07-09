@@ -8,6 +8,13 @@ export class PrismaFormRepository implements FormRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(data: SubmitFormDto): Promise<FormSubmissionEntity> {
-    return this.prisma.formSubmission.create({ data });
+    return this.prisma.formSubmission.create({
+      data: {
+        name: data.name,
+        email: data.email,
+        message: data.message,
+        createdAt: new Date(),
+      },
+    });
   }
 }

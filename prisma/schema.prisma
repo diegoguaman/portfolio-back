@@ -20,7 +20,6 @@ model FormSubmission {
   name       String
   email      String
   message    String
-  cookies    Json
   createdAt  DateTime @default(now())
 }
 
