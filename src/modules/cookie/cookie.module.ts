@@ -1,14 +1,21 @@
 import { Module } from '@nestjs/common';
-import { SubmitCookieConsentController } from './presentation/submit-cookie-consent.controller';
+import { CookieConsentController } from './presentation/cookie-consent.controller';
 import { SubmitCookieConsentUseCase } from './application/submit-cookie-consent.usecase';
 import { PrismaCookieRepository } from './infrastructure/prisma-cookie.repository';
-import { COOKIE_REPOSITORY_TOKEN } from './domain/constants';
+import { COOKIE_REPOSITORY_TOKEN } from './domain/cookie.repository';
+import { UpdateCookieConsentUseCase } from './application/update-cookie-consent.usecase';
+import { DeleteCookieConsentUseCase } from './application/delete-cookie-consent.usecase';
+import { GetCookieConsentsUseCase } from './application/get-cookie-consents.usecase';
 
 @Module({
-  controllers: [SubmitCookieConsentController],
+  controllers: [CookieConsentController],
   providers: [
     SubmitCookieConsentUseCase,
+    UpdateCookieConsentUseCase,
+    DeleteCookieConsentUseCase,
+    GetCookieConsentsUseCase,
     { provide: COOKIE_REPOSITORY_TOKEN, useClass: PrismaCookieRepository },
   ],
+  exports: [COOKIE_REPOSITORY_TOKEN],
 })
 export class CookieModule {}

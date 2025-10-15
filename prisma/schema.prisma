@@ -25,8 +25,11 @@ model FormSubmission {
 
 model CookieConsent{
   id           Int      @id @default(autoincrement())
+  anonymousId  String?
+  @@unique([anonymousId, cookieName], map: "unique_anonymousId_cookieName")
   cookieName   String
   consentGiven Boolean
   createdAt    DateTime @default(now())
+  updatedAt    DateTime @default(now()) @updatedAt
   metadata     Json?
 }

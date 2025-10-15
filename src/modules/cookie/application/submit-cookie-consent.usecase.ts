@@ -3,14 +3,16 @@ import {
   Inject,
   ConflictException,
   InternalServerErrorException,
+  Logger,
 } from '@nestjs/common';
 import { CookieRepository } from '../domain/cookie.repository';
 import { CookieConsentDto } from '../presentation/dtos/cookie-consent.dto';
 import { CookieConsentEntity } from '../domain/cookie-consent.entity';
-import { COOKIE_REPOSITORY_TOKEN } from './../domain/constants';
+import { COOKIE_REPOSITORY_TOKEN } from './../domain/cookie.repository';
 
 @Injectable()
 export class SubmitCookieConsentUseCase {
+  private readonly logger = new Logger(SubmitCookieConsentUseCase.name);
   constructor(
     @Inject(COOKIE_REPOSITORY_TOKEN)
     private readonly cookieRepo: CookieRepository,
@@ -18,13 +20,20 @@ export class SubmitCookieConsentUseCase {
 
   async execute(dto: CookieConsentDto): Promise<CookieConsentEntity> {
     try {
-      const existing = await this.cookieRepo.findByCookieName(dto.cookieName);
+      const existing = await this.cookieRepo.findByUserAndName(
+        dto.anonymousId,
+        dto.cookieName,
+      );
       if (existing) {
         throw new ConflictException(
           `Consent for "${dto.cookieName}" already exists`,
         );
       }
-      return await this.cookieRepo.createConsent(dto);
+      const result = await this.cookieRepo.createConsent(dto);
+      this.logger.log(
+        `Consent created for user ${dto.anonymousId}, cookie: ${dto.cookieName}`,
+      );
+      return result;
     } catch (error) {
       if (error instanceof ConflictException) throw error;
       // Para cualquier otro error, devolvemos un 500
