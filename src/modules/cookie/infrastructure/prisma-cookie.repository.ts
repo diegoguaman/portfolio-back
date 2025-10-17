@@ -11,11 +11,25 @@ export class PrismaCookieRepository implements CookieRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async createConsent(data: CookieConsentDto): Promise<CookieConsentEntity> {
-    this.logger.log(`Creando consentimiento para cookie: ${data.cookieName}`);
-    return this.prisma.cookieConsent.create({ data });
+    try {
+      this.logger.log(`Creando consentimiento para cookie: ${data.cookieName}`);
+      const created = await this.prisma.cookieConsent.create({ data });
+      return {
+        id: created.id,
+        anonymousId: created.anonymousId,
+        cookieName: created.cookieName,
+        consentGiven: created.consentGiven,
+        createdAt: created.createdAt,
+        updatedAt: created.updatedAt,
+        metadata: created.metadata,
+      };
+    } catch (error) {
+      this.logger.error(`Error al crear consentimiento para cookie: ${error}`);
+      throw error;
+    }
   }
 
-  async findByUserAndName(
+  async findByAnonAndName(
     anonymousId: string,
     name: string,
   ): Promise<CookieConsentEntity | null> {
@@ -24,15 +38,22 @@ export class PrismaCookieRepository implements CookieRepository {
     });
   }
 
-  async findAllByUser(
+  async findAllByAnon(
     anonymousId: string,
     options?: { skip: number; take: number },
   ): Promise<CookieConsentEntity[]> {
-    return this.prisma.cookieConsent.findMany({
-      where: { anonymousId },
-      skip: options?.skip,
-      take: options?.take,
-    });
+    try {
+      return this.prisma.cookieConsent.findMany({
+        where: { anonymousId },
+        skip: options?.skip,
+        take: options?.take,
+      });
+    } catch (error) {
+      this.logger.error(
+        `Error al obtener consentimientos para anonymousId: ${anonymousId}`,
+      );
+      throw error;
+    }
   }
 
   async updateConsent(
@@ -40,37 +61,47 @@ export class PrismaCookieRepository implements CookieRepository {
     name: string,
     data: Partial<CookieConsentDto>,
   ): Promise<CookieConsentEntity> {
-    this.logger.log(
-      `Actualizando consentimiento para userId: ${anonymousId}, cookie: ${name}`,
-    );
+    try {
+      this.logger.log(
+        `Actualizando consentimiento para anonymousId: ${anonymousId}, cookie: ${name}`,
+      );
 
-    const updateData = {
-      ...data,
-      updatedAt: new Date(),
-    };
+      const updateData = {
+        ...data,
+        updatedAt: new Date(),
+      };
 
-    const updated = await this.prisma.cookieConsent.update({
-      where: { anonymousId_cookieName: { anonymousId, cookieName: name } },
-      data: updateData,
-    });
+      const updated = await this.prisma.cookieConsent.update({
+        where: { anonymousId_cookieName: { anonymousId, cookieName: name } },
+        data: updateData,
+      });
 
-    return {
-      id: updated.id,
-      anonymousId: updated.anonymousId,
-      cookieName: updated.cookieName,
-      consentGiven: updated.consentGiven,
-      createdAt: updated.createdAt,
-      updatedAt: updated.updatedAt,
-      metadata: updated.metadata,
-    };
+      return {
+        id: updated.id,
+        anonymousId: updated.anonymousId,
+        cookieName: updated.cookieName,
+        consentGiven: updated.consentGiven,
+        createdAt: updated.createdAt,
+        updatedAt: updated.updatedAt,
+        metadata: updated.metadata,
+      };
+    } catch (error) {
+      this.logger.error(`Error updating consent: ${error}`);
+      throw error;
+    }
   }
 
   async deleteConsent(anonymousId: string, name: string): Promise<void> {
-    this.logger.warn(
-      `Eliminando consentimiento para userId: ${anonymousId}, cookie: ${name}`,
-    );
-    await this.prisma.cookieConsent.delete({
-      where: { anonymousId_cookieName: { anonymousId, cookieName: name } },
-    });
+    try {
+      this.logger.warn(
+        `Eliminando consentimiento para anonymousId: ${anonymousId}, cookie: ${name}`,
+      );
+      await this.prisma.cookieConsent.delete({
+        where: { anonymousId_cookieName: { anonymousId, cookieName: name } },
+      });
+    } catch (error) {
+      this.logger.error(`Error deleting consent: ${error}`);
+      throw error;
+    }
   }
 }

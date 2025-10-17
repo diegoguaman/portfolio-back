@@ -4,9 +4,13 @@
   "testEnvironment": "node",
   "testRegex": ".e2e-spec.ts$",
   "transform": {
-    "^.+\\.(t|j)s$": "ts-jest"
+    "^.+\\.(t|j)s$": ["ts-jest", {
+      "tsconfig": "tsconfig.json",
+      "diagnostics": true
+    }]
   },
-  "moduleNameMapper": {
-    "^prisma/(.*)$": "<rootDir>/src/prisma/$1"
-  }
+  "transformIgnorePatterns": [
+    "/node_modules/(?!uuid)/"
+  ],
+  "setupFiles": ["dotenv/config"]
 }

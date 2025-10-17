@@ -21,7 +21,7 @@ export class UpdateCookieConsentUseCase {
     cookieName: string,
     dto: UpdateCookieConsentDto,
   ): Promise<CookieConsentEntity> {
-    const existing = await this.cookieRepo.findByUserAndName(
+    const existing = await this.cookieRepo.findByAnonAndName(
       anonymousId,
       cookieName,
     );

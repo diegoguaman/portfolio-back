@@ -29,7 +29,7 @@ import { UpdateCookieConsentUseCase } from '../application/update-cookie-consent
 import { DeleteCookieConsentUseCase } from '../application/delete-cookie-consent.usecase';
 
 @ApiTags('Cookies')
-@Controller('cookie-consent')
+@Controller('/api/cookie-consent')
 export class CookieConsentController {
   constructor(
     private readonly useCase: SubmitCookieConsentUseCase,
@@ -68,11 +68,18 @@ export class CookieConsentController {
   @ApiQuery({ name: 'take', required: false, type: Number })
   async getConsents(
     @Headers('x-anonymous-id') anonymousId: string,
-    @Query('skip') skip: number = 0,
-    @Query('take') take: number = 10,
+    @Query('skip') skipStr: number = 0,
+    @Query('take') takeStr: number = 10,
   ) {
     if (!anonymousId) {
       throw new BadRequestException('Invalid or missing Anonymous ID');
+    }
+    const skip = Number(skipStr) || 0;
+    const take = Number(takeStr) || 10;
+    if (isNaN(skip) || isNaN(take) || skip < 0 || take <= 0) {
+      throw new BadRequestException(
+        'Invalid skip or take parameters; must be positive integers',
+      );
     }
     return this.getUseCase.execute(anonymousId, { skip, take });
   }

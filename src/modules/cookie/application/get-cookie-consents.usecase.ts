@@ -19,7 +19,7 @@ export class GetCookieConsentsUseCase {
     anonymousId: string,
     options?: { skip: number; take: number },
   ): Promise<CookieConsentEntity[]> {
-    const consents = await this.cookieRepo.findAllByUser(anonymousId, options);
+    const consents = await this.cookieRepo.findAllByAnon(anonymousId, options);
     if (!consents.length)
       throw new NotFoundException(`No consents found for user ${anonymousId}`);
     return consents;

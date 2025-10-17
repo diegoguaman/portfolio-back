@@ -2,8 +2,9 @@ import {
   Injectable,
   Inject,
   ConflictException,
-  InternalServerErrorException,
   Logger,
+  BadRequestException,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { CookieRepository } from '../domain/cookie.repository';
 import { CookieConsentDto } from '../presentation/dtos/cookie-consent.dto';
@@ -19,8 +20,10 @@ export class SubmitCookieConsentUseCase {
   ) {}
 
   async execute(dto: CookieConsentDto): Promise<CookieConsentEntity> {
+    if (!dto.anonymousId || dto.anonymousId.trim() === '')
+      throw new BadRequestException('anonymousId is required');
     try {
-      const existing = await this.cookieRepo.findByUserAndName(
+      const existing = await this.cookieRepo.findByAnonAndName(
         dto.anonymousId,
         dto.cookieName,
       );

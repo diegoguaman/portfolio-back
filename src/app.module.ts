@@ -15,10 +15,9 @@ import { CookieModule } from './modules/cookie/cookie.module';
       load: [configuration],
       isGlobal: true,
       validationSchema: Joi.object({
-        TWILIO_ACCOUNT_SID: Joi.string().required(),
-        TWILIO_AUTH_TOKEN: Joi.string().required(),
-        TWILIO_WHATSAPP_FROM: Joi.string().required(),
-        TWILIO_WHATSAPP_TEMPLATE_SID: Joi.string().required(),
+        PORT: Joi.number().default(3000),
+        DATABASE_URL: Joi.string().uri().required(),
+        JWT_SECRET: Joi.string().min(8).default('dummy-secret-for-tests'),
       }),
     }),
     NotificationModule,

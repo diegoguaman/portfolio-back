@@ -8,12 +8,18 @@ const config: Config.InitialOptions = {
   testMatch: ['**/*.spec.ts'],
   collectCoverage: true,
   coverageDirectory: 'coverage',
-  globals: {
-    'ts-jest': {
-      tsconfig: 'tsconfig.json',
-      diagnostics: true,
-    },
+  transform: {
+    '^.+\\.(t|j)s$': [
+      'ts-jest',
+      {
+        tsconfig: 'tsconfig.json',
+        diagnostics: true,
+      },
+    ], // Transpila TS/JS con ts-jest
   },
+  transformIgnorePatterns: [
+    '/node_modules/(?!uuid)/', // No ignores uuid, transpílalo para ESM
+  ],
 };
 
 export default config;

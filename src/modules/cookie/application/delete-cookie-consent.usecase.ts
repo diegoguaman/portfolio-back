@@ -15,7 +15,7 @@ export class DeleteCookieConsentUseCase {
   ) {}
 
   async execute(anonymousId: string, cookieName: string): Promise<void> {
-    const existing = await this.cookieRepo.findByUserAndName(
+    const existing = await this.cookieRepo.findByAnonAndName(
       anonymousId,
       cookieName,
     );
