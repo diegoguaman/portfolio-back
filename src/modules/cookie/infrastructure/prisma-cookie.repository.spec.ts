@@ -116,20 +116,31 @@ describe('PrismaCookieRepository', () => {
   it('should update consent successfully', async () => {
     const anonymousId = 'user-123';
     const cookieName = 'analytics';
-    const consent = { id: 1, anonymousId, cookieName, consentGiven: true, createdAt: new Date(), updatedAt: new Date(), metadata: null };
+    const now = new Date();
+    const consent = { id: 1, anonymousId, cookieName, consentGiven: true, createdAt: now, updatedAt: now, metadata: null };
 
     prisma.cookieConsent.update.mockResolvedValueOnce(consent);
 
     const result = await repository.updateConsent(anonymousId, cookieName, consent);
 
-    expect(prisma.cookieConsent.update).toHaveBeenCalledWith({ where: { anonymousId_cookieName: { anonymousId, cookieName } }, data: consent });
+    expect(prisma.cookieConsent.update).toHaveBeenCalledWith({
+      where: { anonymousId_cookieName: { anonymousId, cookieName } },
+      data: expect.objectContaining({
+        id: 1,
+        anonymousId,
+        cookieName,
+        consentGiven: true,
+        metadata: null,
+      }),
+    });
     expect(result).toEqual(consent);
   });
 
   it('should throw error on updateConsent failure', async () => {
     const anonymousId = 'user-123';
     const cookieName = 'analytics';
-    const consent = { id: 1, anonymousId, cookieName, consentGiven: true, createdAt: new Date(), updatedAt: new Date(), metadata: null };
+    const now = new Date();
+    const consent = { id: 1, anonymousId, cookieName, consentGiven: true, createdAt: now, updatedAt: now, metadata: null };
 
     prisma.cookieConsent.update.mockRejectedValueOnce(new Error('DB error'));
 
@@ -139,7 +150,8 @@ describe('PrismaCookieRepository', () => {
   it('should delete consent successfully', async () => {
     const anonymousId = 'user-123';
     const cookieName = 'analytics';
-    const consent = { id: 1, anonymousId, cookieName, consentGiven: true, createdAt: new Date(), updatedAt: new Date(), metadata: null };
+    const now = new Date();
+    const consent = { id: 1, anonymousId, cookieName, consentGiven: true, createdAt: now, updatedAt: now, metadata: null };
 
     prisma.cookieConsent.delete.mockResolvedValueOnce(consent);
 

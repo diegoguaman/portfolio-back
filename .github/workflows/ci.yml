@@ -9,14 +9,9 @@ on:
     branches: [main]
 
 env:
-  # Carga variables necesarias para Prisma y notificaciones
-  DATABASE_URL: ${{ secrets.DATABASE_URL }}
-  DIRECT_URL: ${{ secrets.DIRECT_URL }}
-  SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
-  TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
-  TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
-  TWILIO_WHATSAPP_FROM: ${{ secrets.TWILIO_WHATSAPP_FROM }}
-  TWILIO_WHATSAPP_TEMPLATE_SID: ${{ secrets.TWILIO_WHATSAPP_TEMPLATE_SID }}
+  # Variables para tests unitarios (no necesitan DB real)
+  DATABASE_URL: postgresql://test:test@localhost:5432/test
+  JWT_SECRET: test-secret-key-for-ci
 
 jobs:
   lint:
@@ -60,7 +55,7 @@ jobs:
       - name: Generate Prisma client
         run: npx prisma generate
       - name: Run unit tests with coverage
-        run: npm run test -- --coverage --coverageReporters=json
+        run: npm run test:unit -- --coverage --coverageReporters=json
       - name: Check coverage threshold
         run: |
           COVERAGE=$(cat coverage/coverage-summary.json | jq '.total.lines.pct')
@@ -76,12 +71,16 @@ jobs:
   integration-tests:
     name: Integration / E2E Tests
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/portfolio
+      DIRECT_URL: postgresql://postgres:postgres@localhost:5432/portfolio
+      JWT_SECRET: test-secret-key-for-ci
     services:
       postgres:
         image: postgres:14-alpine
         env:
           POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_PASSWORD: postgres
           POSTGRES_DB: portfolio
         ports:
           - 5432:5432
@@ -107,6 +106,8 @@ jobs:
         run: npx prisma generate
       - name: Apply database migrations
         run: npx prisma migrate deploy
+      - name: Run integration tests
+        run: npm run test:integration
       - name: Run e2e tests
         run: npm run test:e2e
 

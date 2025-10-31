@@ -47,15 +47,30 @@ $ npm run start:prod
 ## Run tests
 
 ```bash
-# unit tests
+# all tests
 $ npm run test
+
+# unit tests only (excludes integration tests)
+$ npm run test:unit
+
+# integration tests only (requires database)
+$ npm run test:integration
 
 # e2e tests
 $ npm run test:e2e
 
-# test coverage
+# test coverage (all tests)
 $ npm run test:cov
+
+# watch mode
+$ npm run test:watch
 ```
+
+### Test Structure
+
+- **Unit Tests** (`*.spec.ts`): Tests aislados sin dependencias externas (DB, APIs)
+- **Integration Tests** (`*.integration.spec.ts`): Tests que requieren base de datos PostgreSQL
+- **E2E Tests** (`test/`): Tests end-to-end de todo el sistema
 
 ## Deployment
 
