@@ -35,8 +35,12 @@ describe('FormSubmissionController (e2e)', () => {
   });
 
   afterAll(async () => {
-    await prisma.formSubmission.deleteMany(); // Limpieza final
-    await app.close();
+    if (prisma) {
+      await prisma.formSubmission.deleteMany(); // Limpieza final
+    }
+    if (app) {
+      await app.close();
+    }
   });
 
   describe('/form (POST)', () => {

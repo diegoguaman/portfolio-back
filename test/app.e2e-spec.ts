@@ -38,8 +38,12 @@ describe('CookieConsentController (e2e)', () => {
   });
 
   afterAll(async () => {
-    await prisma.cookieConsent.deleteMany(); //Limpieza final
-    await app.close();
+    if (prisma) {
+      await prisma.cookieConsent.deleteMany(); //Limpieza final
+    }
+    if (app) {
+      await app.close();
+    }
   });
 
   it('/api/cookie-consent (POST) - should create consent', async () => {

@@ -35,8 +35,12 @@ describe('CookieConsent Integration Tests', () => {
   });
 
   afterAll(async () => {
-    await prisma.cookieConsent.deleteMany();
-    await app.close();
+    if (prisma) {
+      await prisma.cookieConsent.deleteMany();
+    }
+    if (app) {
+      await app.close();
+    }
   });
 
   it('should create and retrieve a consent', async () => {
