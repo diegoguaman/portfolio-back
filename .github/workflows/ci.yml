@@ -1,12 +1,12 @@
 # .github/workflows/ci.yml
 
-name: CI
+name: CI/CD Pipeline
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main]
   pull_request:
-    branches: [main, develop]
+    branches: [main]
 
 env:
   # Carga variables necesarias para Prisma y notificaciones
@@ -29,7 +29,7 @@ jobs:
         with:
           node-version: 20.x
       - name: Cache npm modules
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.npm
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
@@ -41,12 +41,11 @@ jobs:
   unit-tests:
     name: Unit Tests
     runs-on: ubuntu-latest
-    needs: lint
     strategy:
       matrix:
         node-version: [18.x, 20.x]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
@@ -60,13 +59,23 @@ jobs:
         run: npm ci
       - name: Generate Prisma client
         run: npx prisma generate
-      - name: Run unit tests
-        run: npm run test -- --coverage --coverageReporters=text
-
+      - name: Run unit tests with coverage
+        run: npm run test -- --coverage --coverageReporters=json
+      - name: Check coverage threshold
+        run: |
+          COVERAGE=$(cat coverage/coverage-summary.json | jq '.total.lines.pct')
+          if (( $(echo "$COVERAGE < 90" | bc -l) )); then
+            echo "Coverage ($COVERAGE%) is below 90%"
+            exit 1
+          fi
+      - name: Upload coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report-${{ matrix.node-version }}
+          path: coverage/
   integration-tests:
     name: Integration / E2E Tests
     runs-on: ubuntu-latest
-    needs: unit-tests
     services:
       postgres:
         image: postgres:14-alpine
@@ -82,7 +91,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Use Node.js 20.x
         uses: actions/setup-node@v4
         with:
@@ -106,13 +115,13 @@ jobs:
     runs-on: ubuntu-latest
     needs: [unit-tests, integration-tests]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Use Node.js 20.x
         uses: actions/setup-node@v4
         with:
           node-version: 20.x
       - name: Cache npm modules
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.npm
           key: ${{ runner.os }}-node-20-${{ hashFiles('**/package-lock.json') }}
@@ -122,6 +131,11 @@ jobs:
         run: npm run build
       - name: Verify build output
         run: test -f dist/src/main.js
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: dist/
 
   coverage-report:
     name: Coverage Report
@@ -135,3 +149,19 @@ jobs:
           files: ./coverage/*.json
           flags: unittests
           name: codecov-umbrella
+  deploy:
+    name: Deploy to Render
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy to Render
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+        run: |
+          curl -X POST \
+            -H "Authorization: Bearer $RENDER_API_KEY" \
+            -H "Content-Type: application/json" \
+            "https://api.render.com/v1/services/$RENDER_SERVICE_ID/deploys"

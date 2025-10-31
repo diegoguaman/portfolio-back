@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Inject,
   Injectable,
   InternalServerErrorException,
@@ -17,13 +18,35 @@ export class SubmitFormUseCase {
   ) {}
 
   async execute(dto: SubmitFormDto): Promise<FormSubmissionEntity> {
-    const record = await this.formRepo.create(dto);
-    // aquí podrías disparar notificaciones
-    if (record) {
-      return record;
+    // Validación de DTO
+    if (!dto.name || dto.name.trim() === '') {
+      throw new BadRequestException('name is required');
     }
-    throw new InternalServerErrorException(
-      'Error al procesar el envío del formulario',
-    );
+    if (!dto.email || !this.isValidEmail(dto.email)) {
+      throw new BadRequestException('valid email is required');
+    }
+    if (!dto.message || dto.message.length > 500) {
+      throw new BadRequestException('message must be 1-500 characters');
+    }
+    try {
+      const record = await this.formRepo.create(dto);
+      // aquí podrías disparar notificaciones
+      // Dispara evento para n8n (webhook)
+      if (!record) {
+        throw new InternalServerErrorException(
+          'Error al procesar el envío del formulario',
+        );
+      }
+      return record;
+    } catch (error) {
+      console.error(error);
+      throw new InternalServerErrorException(
+        'Error al procesar el envío del formulario',
+      );
+    }
+  }
+  private isValidEmail(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   }
 }

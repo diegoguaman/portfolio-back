@@ -7,7 +7,7 @@ import {
 } from '../domain/form.repository';
 import { SubmitFormDto } from '../presentation/dtos/submit-form.dto';
 import { FormSubmissionEntity } from '../domain/form.entity';
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, InternalServerErrorException } from '@nestjs/common';
 
 // Tipado para mock
 interface MockFormRepository extends FormRepository {
@@ -68,5 +68,22 @@ describe('SubmitFormUseCase', () => {
     repo.create.mockRejectedValueOnce(new BadRequestException('Invalid email'));
 
     await expect(useCase.execute(dto)).rejects.toThrow(BadRequestException);
+  });
+  it('should throw InternalServerErrorException if repository fails', async () => {
+    const dto: SubmitFormDto = {
+      name: 'Alice',
+      email: 'a@example.com',
+      message: 'Hello',
+    };
+
+    repo.create.mockRejectedValueOnce(new Error('DB error'));
+
+    await expect(useCase.execute(dto)).rejects.toThrow(
+      BadRequestException,
+    );
+    await expect(useCase.execute(dto)).rejects.toThrow(
+      'Error al procesar el envío del formulario',
+    );
+    expect(repo.create).toHaveBeenCalledWith(dto);
   });
 });
