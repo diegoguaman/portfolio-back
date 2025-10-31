@@ -46,21 +46,35 @@ $ npm run start:prod
 
 ## Run tests
 
-```bash
-# all tests
-$ npm run test
+### Prerequisitos para tests de integración y e2e
 
-# unit tests only (excludes integration tests)
+Los tests de integración y e2e requieren PostgreSQL corriendo:
+
+```bash
+# Iniciar PostgreSQL con Docker
+$ docker-compose up -d db
+
+# Aplicar migraciones
+$ npx prisma migrate deploy
+```
+
+### Comandos de tests
+
+```bash
+# unit tests only (NO requiere DB) - ⚡ RÁPIDO
 $ npm run test:unit
 
-# integration tests only (requires database)
+# test coverage (solo unit tests)
+$ npm run test:cov
+
+# integration tests only (REQUIERE PostgreSQL)
 $ npm run test:integration
 
-# e2e tests
+# e2e tests (REQUIERE PostgreSQL)
 $ npm run test:e2e
 
-# test coverage (all tests)
-$ npm run test:cov
+# all tests (unit + integration + e2e)
+$ npm run test
 
 # watch mode
 $ npm run test:watch
@@ -69,8 +83,28 @@ $ npm run test:watch
 ### Test Structure
 
 - **Unit Tests** (`*.spec.ts`): Tests aislados sin dependencias externas (DB, APIs)
-- **Integration Tests** (`*.integration.spec.ts`): Tests que requieren base de datos PostgreSQL
-- **E2E Tests** (`test/`): Tests end-to-end de todo el sistema
+  - ⚡ Rápidos (~13s)
+  - No requieren base de datos
+  - Usan mocks para todas las dependencias
+  
+- **Integration Tests** (`*.integration.spec.ts`): Tests con base de datos real
+  - 🐘 Requieren PostgreSQL corriendo
+  - Prueban la integración real con la base de datos
+  
+- **E2E Tests** (`test/*.e2e-spec.ts`): Tests end-to-end de la API completa
+  - 🐘 Requieren PostgreSQL corriendo
+  - Prueban el sistema completo
+
+### Variables de Entorno para Tests
+
+Crea un archivo `.env` en la raíz con:
+
+```env
+DATABASE_URL="postgresql://postgres:P05t6r3SQL_1994@localhost:5432/portfolio"
+DIRECT_URL="postgresql://postgres:P05t6r3SQL_1994@localhost:5432/portfolio"
+JWT_SECRET="your-secret-key"
+PORT=3000
+```
 
 ## Deployment
 

@@ -21,7 +21,7 @@ describe('CookieConsentController (e2e)', () => {
   let prisma: PrismaService;
   const anonId: string = uuidv4();
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
@@ -31,7 +31,10 @@ describe('CookieConsentController (e2e)', () => {
     await app.init();
 
     prisma = app.get(PrismaService);
-    await prisma.cookieConsent.deleteMany(); //Limpieza inicial
+  }, 30000);
+
+  beforeEach(async () => {
+    await prisma.cookieConsent.deleteMany(); //Limpieza antes de cada test
   });
 
   afterAll(async () => {

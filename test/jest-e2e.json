@@ -12,5 +12,6 @@
   "transformIgnorePatterns": [
     "/node_modules/(?!uuid)/"
   ],
-  "setupFiles": ["dotenv/config"]
+  "setupFiles": ["<rootDir>/setup-e2e.ts"],
+  "testTimeout": 30000
 }
