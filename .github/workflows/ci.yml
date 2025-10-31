@@ -64,8 +64,8 @@ jobs:
       - name: Check coverage threshold
         run: |
           COVERAGE=$(cat coverage/coverage-summary.json | jq '.total.lines.pct')
-          if (( $(echo "$COVERAGE < 90" | bc -l) )); then
-            echo "Coverage ($COVERAGE%) is below 90%"
+          if (( $(echo "$COVERAGE < 95" | bc -l) )); then
+            echo "Coverage ($COVERAGE%) is below 95%"
             exit 1
           fi
       - name: Upload coverage
