@@ -6,7 +6,6 @@ import configuration from './config/configuration';
 import { PrismaModule } from './../prisma/prisma.module';
 import { FormModule } from './modules/form/form.module';
 import * as Joi from 'joi';
-import { NotificationModule } from './modules/notification/notification.module';
 import { CookieModule } from './modules/cookie/cookie.module';
 
 @Module({
@@ -18,9 +17,9 @@ import { CookieModule } from './modules/cookie/cookie.module';
         PORT: Joi.number().default(3000),
         DATABASE_URL: Joi.string().uri().required(),
         JWT_SECRET: Joi.string().min(8).default('dummy-secret-for-tests'),
+        N8N_WEBHOOK_URL: Joi.string().uri().optional(),
       }),
     }),
-    NotificationModule,
     PrismaModule,
     FormModule,
     CookieModule,

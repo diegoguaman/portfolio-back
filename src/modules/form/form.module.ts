@@ -3,11 +3,13 @@ import { SubmitFormController } from './presentation/submit-form.controller';
 import { SubmitFormUseCase } from './application/submit-form.usecase';
 import { PrismaFormRepository } from './infrastructure/prisma-form.repository';
 import { FORM_REPOSITORY_TOKEN } from './domain/form.repository';
+import { N8nWebhookAdapter } from './infrastructure/n8n-webhook.adapter';
 
 @Module({
   controllers: [SubmitFormController],
   providers: [
     SubmitFormUseCase,
+    N8nWebhookAdapter,
     // Inyección de la implementación concreta
     { provide: FORM_REPOSITORY_TOKEN, useClass: PrismaFormRepository },
   ],

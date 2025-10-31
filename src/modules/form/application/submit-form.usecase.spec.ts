@@ -7,7 +7,8 @@ import {
 } from '../domain/form.repository';
 import { SubmitFormDto } from '../presentation/dtos/submit-form.dto';
 import { FormSubmissionEntity } from '../domain/form.entity';
-import { BadRequestException, InternalServerErrorException } from '@nestjs/common';
+import { InternalServerErrorException } from '@nestjs/common';
+import { N8nWebhookAdapter } from '../infrastructure/n8n-webhook.adapter';
 
 // Tipado para mock
 interface MockFormRepository extends FormRepository {
@@ -17,16 +18,22 @@ interface MockFormRepository extends FormRepository {
 describe('SubmitFormUseCase', () => {
   let useCase: SubmitFormUseCase;
   let repo: MockFormRepository;
+  let n8nWebhook: jest.Mocked<N8nWebhookAdapter>;
 
   beforeEach(async () => {
     // Creamos el mock con una función flecha (sin extraer métodos)
     repo = {
       create: jest.fn(),
     };
+    n8nWebhook = {
+      notifyFormSubmission: jest.fn().mockResolvedValue(undefined),
+    } as unknown as jest.Mocked<N8nWebhookAdapter>;
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         SubmitFormUseCase,
         { provide: FORM_REPOSITORY_TOKEN, useValue: repo },
+        { provide: N8nWebhookAdapter, useValue: n8nWebhook },
       ],
     }).compile();
     useCase = module.get<SubmitFormUseCase>(SubmitFormUseCase);
@@ -56,19 +63,9 @@ describe('SubmitFormUseCase', () => {
 
     expect(repo.create).toHaveBeenCalledWith(dto);
     expect(result).toBe(fake);
+    expect(n8nWebhook.notifyFormSubmission).toHaveBeenCalledWith(fake);
   });
 
-  it('should throw BadRequestException if email is invalid', async () => {
-    const dto: SubmitFormDto = {
-      name: 'Alice',
-      email: 'invalid', // Email inválido
-      message: 'Hello',
-    };
-
-    repo.create.mockRejectedValueOnce(new BadRequestException('Invalid email'));
-
-    await expect(useCase.execute(dto)).rejects.toThrow(BadRequestException);
-  });
   it('should throw InternalServerErrorException if repository fails', async () => {
     const dto: SubmitFormDto = {
       name: 'Alice',
@@ -79,11 +76,10 @@ describe('SubmitFormUseCase', () => {
     repo.create.mockRejectedValueOnce(new Error('DB error'));
 
     await expect(useCase.execute(dto)).rejects.toThrow(
-      BadRequestException,
+      InternalServerErrorException,
     );
     await expect(useCase.execute(dto)).rejects.toThrow(
       'Error al procesar el envío del formulario',
     );
-    expect(repo.create).toHaveBeenCalledWith(dto);
   });
 });

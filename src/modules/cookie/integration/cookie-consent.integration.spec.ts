@@ -28,7 +28,10 @@ describe('CookieConsent Integration Tests', () => {
     await app.init();
 
     prisma = app.get(PrismaService);
-    await prisma.cookieConsent.deleteMany(); // Limpia la DB antes de tests
+  }, 30000);
+
+  beforeEach(async () => {
+    await prisma.cookieConsent.deleteMany(); // Limpia la DB antes de cada test
   });
 
   afterAll(async () => {
@@ -86,6 +89,18 @@ describe('CookieConsent Integration Tests', () => {
   });
 
   it('should delete a consent', async () => {
+    // Primero crear un consent para tener algo en la DB
+    await request(app.getHttpServer())
+      .post('/api/cookie-consent')
+      .set('X-Anonymous-ID', anonId)
+      .send({
+        anonymousId: anonId,
+        cookieName: 'persistent',
+        consentGiven: true,
+      })
+      .expect(201);
+
+    // Crear el consent que vamos a eliminar
     await request(app.getHttpServer())
       .post('/api/cookie-consent')
       .set('X-Anonymous-ID', anonId)
@@ -96,11 +111,13 @@ describe('CookieConsent Integration Tests', () => {
       })
       .expect(201);
 
+    // Eliminar el consent
     await request(app.getHttpServer())
       .delete('/api/cookie-consent/ads')
       .set('X-Anonymous-ID', anonId)
       .expect(204);
 
+    // Verificar que el consent eliminado ya no existe
     const getResponse = await request(app.getHttpServer())
       .get('/api/cookie-consent?skip=0&take=10')
       .set('X-Anonymous-ID', anonId)
@@ -108,6 +125,7 @@ describe('CookieConsent Integration Tests', () => {
 
     const consents: CookieConsentResponse[] = getResponse.body;
     expect(consents.find((c) => c.cookieName === 'ads')).toBeUndefined();
+    expect(consents.find((c) => c.cookieName === 'persistent')).toBeDefined();
   });
 
   it('should return 400 for invalid anonymousId', async () => {
