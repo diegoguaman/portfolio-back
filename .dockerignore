@@ -3,3 +3,10 @@ dist
 coverage
 .env
 *.log
+.git
+.github
+test
+docs
+coverage
+*.md
+.DS_Store
