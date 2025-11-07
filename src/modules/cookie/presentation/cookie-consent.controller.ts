@@ -29,7 +29,7 @@ import { UpdateCookieConsentUseCase } from '../application/update-cookie-consent
 import { DeleteCookieConsentUseCase } from '../application/delete-cookie-consent.usecase';
 
 @ApiTags('Cookies')
-@Controller('/api/cookie-consent')
+@Controller('cookie-consent')
 export class CookieConsentController {
   constructor(
     private readonly useCase: SubmitCookieConsentUseCase,
